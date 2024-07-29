@@ -1,0 +1,313 @@
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+// Enums for Gender, Country, City, ProductType, Publisher
+public enum Gender { Female, Male }
+public enum Country { Hungary, USA, UK, Germany }
+public enum City { Budapest, NewYork, London, Berlin }
+public enum ProductType { Book, Article, ElectronicResource }
+public enum Publisher { PublisherA, PublisherB, PublisherC }
+
+// IAuthor interface
+public interface IAuthor
+{
+    void AddAuthor(Author author);
+    void EditAuthor(Author author);
+    void DeleteAuthor(Guid authorId);
+    void AddProduct(Guid authorId, Product product);
+    void DeleteProduct(Guid authorId, Guid productId);
+    Author GetAuthorById(Guid authorId);
+}
+
+// Author class
+public class Author : IAuthor, IComparable<Author>
+{
+    public Guid Id { get; private set; }
+    public string FirstName { get; private set; }
+    public string LastName { get; private set; }
+    public Gender Gender { get; private set; }
+    public string PersonalNumber { get; private set; }
+    public DateTime DateOfBirth { get; private set; }
+    public Country Country { get; private set; }
+    public City City { get; private set; }
+    public string PhoneNumber { get; private set; }
+    public string Email { get; private set; }
+    public List<Product> Products { get; private set; }
+
+    public Author(string firstName, string lastName, Gender gender, string personalNumber, DateTime dateOfBirth, Country country, City city, string phoneNumber, string email)
+    {
+        Id = Guid.NewGuid();
+        SetFirstName(firstName);
+        SetLastName(lastName);
+        SetGender(gender);
+        SetPersonalNumber(personalNumber);
+        SetDateOfBirth(dateOfBirth);
+        SetCountry(country);
+        SetCity(city);
+        SetPhoneNumber(phoneNumber);
+        SetEmail(email);
+        Products = new List<Product>();
+    }
+
+    public void SetFirstName(string firstName)
+    {
+        if (string.IsNullOrEmpty(firstName) || firstName.Length < 2 || firstName.Length > 50)
+            throw new ArgumentException("First name must be between 2 and 50 characters.");
+        FirstName = firstName;
+    }
+
+    public void SetLastName(string lastName)
+    {
+        if (string.IsNullOrEmpty(lastName) || lastName.Length < 2 || lastName.Length > 50)
+            throw new ArgumentException("Last name must be between 2 and 50 characters.");
+        LastName = lastName;
+    }
+
+    public void SetGender(Gender gender)
+    {
+        Gender = gender;
+    }
+
+    public void SetPersonalNumber(string personalNumber)
+    {
+        if (!Regex.IsMatch(personalNumber, @"^\d{11}$"))
+            throw new ArgumentException("Personal number must be exactly 11 digits.");
+        PersonalNumber = personalNumber;
+    }
+
+    public void SetDateOfBirth(DateTime dateOfBirth)
+    {
+        if ((DateTime.Now.Year - dateOfBirth.Year) < 18)
+            throw new ArgumentException("Author must be at least 18 years old.");
+        DateOfBirth = dateOfBirth;
+    }
+
+    public void SetCountry(Country country)
+    {
+        Country = country;
+    }
+
+    public void SetCity(City city)
+    {
+        City = city;
+    }
+
+    public void SetPhoneNumber(string phoneNumber)
+    {
+        if (string.IsNullOrEmpty(phoneNumber) || phoneNumber.Length < 4 || phoneNumber.Length > 50)
+            throw new ArgumentException("Phone number must be between 4 and 50 characters.");
+        PhoneNumber = phoneNumber;
+    }
+
+    public void SetEmail(string email)
+    {
+        if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            throw new ArgumentException("Email is not valid.");
+        Email = email;
+    }
+
+    public void AddAuthor(Author author) { }
+    public void EditAuthor(Author author) { }
+    public void DeleteAuthor(Guid authorId) { }
+    public void AddProduct(Guid authorId, Product product) { }
+    public void DeleteProduct(Guid authorId, Guid productId) { }
+    public Author GetAuthorById(Guid authorId) => this;
+
+    public int CompareTo(Author other)
+    {
+        return other.DateOfBirth.CompareTo(this.DateOfBirth); // Descending order by age
+    }
+}
+
+// Product class
+public class Product : IComparable<Product>
+{
+    public Guid Id { get; private set; }
+    public string Name { get; private set; }
+    public string Annotation { get; private set; }
+    public ProductType Type { get; private set; }
+    public string ISBN { get; private set; }
+    public DateTime ReleaseDate { get; private set; }
+    public Publisher Publisher { get; private set; }
+    public int NumberOfPages { get; private set; }
+    public string Address { get; private set; }
+
+    public Product(string name, string annotation, ProductType type, string isbn, DateTime releaseDate, Publisher publisher, int numberOfPages, string address)
+    {
+        Id = Guid.NewGuid();
+        SetName(name);
+        SetAnnotation(annotation);
+        SetType(type);
+        SetISBN(isbn);
+        SetReleaseDate(releaseDate);
+        SetPublisher(publisher);
+        SetNumberOfPages(numberOfPages);
+        SetAddress(address);
+    }
+
+    public void SetName(string name)
+    {
+        if (string.IsNullOrEmpty(name) || name.Length < 2 || name.Length > 250)
+            throw new ArgumentException("Name must be between 2 and 250 characters.");
+        Name = name;
+    }
+
+    public void SetAnnotation(string annotation)
+    {
+        if (string.IsNullOrEmpty(annotation) || annotation.Length < 10 || annotation.Length > 500)
+            throw new ArgumentException("Annotation must be between 10 and 500 characters.");
+        Annotation = annotation;
+    }
+
+    public void SetType(ProductType type)
+    {
+        Type = type;
+    }
+
+    public void SetISBN(string isbn)
+    {
+        if (!Regex.IsMatch(isbn, @"^\d{13}$"))
+            throw new ArgumentException("ISBN must be exactly 13 digits.");
+        ISBN = isbn;
+    }
+
+    public void SetReleaseDate(DateTime releaseDate)
+    {
+        ReleaseDate = releaseDate;
+    }
+
+    public void SetPublisher(Publisher publisher)
+    {
+        Publisher = publisher;
+    }
+
+    public void SetNumberOfPages(int numberOfPages)
+    {
+        NumberOfPages = numberOfPages;
+    }
+
+    public void SetAddress(string address)
+    {
+        if (string.IsNullOrEmpty(address))
+            throw new ArgumentException("Address cannot be empty.");
+        Address = address;
+    }
+
+    public int CompareTo(Product other)
+    {
+        return this.NumberOfPages.CompareTo(other.NumberOfPages);
+    }
+}
+
+// Statistics class
+public class Statistics
+{
+    public List<Author> Authors { get; private set; }
+
+    public Statistics()
+    {
+        Authors = new List<Author>();
+    }
+
+    public void AddAuthor(Author author)
+    {
+        Authors.Add(author);
+    }
+
+    public List<Author> GetAuthorsSortedByAgeDescending()
+    {
+        return Authors.OrderByDescending(a => a.DateOfBirth).ToList();
+    }
+
+    public List<Product> GetProductsSortedByPageCountAscending()
+    {
+        return Authors.SelectMany(a => a.Products).OrderBy(p => p.NumberOfPages).ToList();
+    }
+
+    public List<Product> GetProductsByDateRange(DateTime startDate, DateTime endDate)
+    {
+        return Authors.SelectMany(a => a.Products).Where(p => p.ReleaseDate >= startDate && p.ReleaseDate <= endDate).ToList();
+    }
+
+    public List<Product> GetTopMProductsByCirculation(int m)
+    {
+        return Authors.SelectMany(a => a.Products).OrderByDescending(p => p.NumberOfPages).Take(m).ToList();
+    }
+
+    public Dictionary<string, int> GetAnnualReport(int year)
+    {
+        var products = Authors.SelectMany(a => a.Products).Where(p => p.ReleaseDate.Year == year).ToList();
+        var report = new Dictionary<string, int>
+        {
+            { "Books", products.Count(p => p.Type == ProductType.Book) },
+            { "Articles", products.Count(p => p.Type == ProductType.Article) },
+            { "ElectronicResources", products.Count(p => p.Type == ProductType.ElectronicResource) }
+        };
+        return report;
+    }
+}
+
+// Program class
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Sample data and usage
+        var author = new Author("John", "Doe", Gender.Male, "12345678901", new DateTime(1980, 1, 1), Country.USA, City.NewYork, "555-1234", "john.doe@example.com");
+        var product1 = new Product("Book 1", "A very interesting book.", ProductType.Book, "1234567890123", new DateTime(2020, 1, 1), Publisher.PublisherA, 300, "123 Street");
+        var product2 = new Product("Book 2", "Another interesting book.", ProductType.Book, "1234567890123", new DateTime(2021, 1, 1), Publisher.PublisherB, 150, "456 Street");
+
+        author.Products.Add(product1);
+        author.Products.Add(product2);
+
+        var stats = new Statistics();
+        stats.AddAuthor(author);
+
+        // Display authors sorted by age descending
+        var sortedAuthors = stats.GetAuthorsSortedByAgeDescending();
+        foreach (var a in sortedAuthors)
+        {
+            Console.WriteLine($"{a.FirstName} {a.LastName} - DOB: {a.DateOfBirth}");
+        }
+
+        // Display products sorted by page count ascending
+        var sortedProducts = stats.GetProductsSortedByPageCountAscending();
+        foreach (var p in sortedProducts)
+        {
+            Console.WriteLine($"{p.Name} - Pages: {p.NumberOfPages}");
+        }
+
+        // Display annual report
+        var report = stats.GetAnnualReport(2020);
+        foreach (var item in report)
+        {
+            Console.WriteLine($"{item.Key}: {item.Value}");
+        }
+        Console.ReadLine();
+    }
+}
+
+
+
+//აბსტრაქცია: IAuthor ინტერფეისი უზრუნველყოფს აბსტრაქტულ ფენას, რომელიც განსაზღვრავს ავტორის
+//მენეჯმენტთან დაკავშირებულ ოპერაციებს იმის დაზუსტების გარეშე, თუ როგორ უნდა განხორციელდეს ეს ოპერაციები.
+//ეს საშუალებას გაძლევთ განახორციელოთ ერთი და იგივე ინტერფეისი, რაც ხელს უწყობს მოქნილობას და მასშტაბურობას.
+
+//ინკაფსულაცია: ინტერფეისის გამოყენებით, ჩვენ ვმალავთ ავტორის მართვის დეტალებს ინტერფეისის მომხმარებლებისგან,
+//გამოვავლენთ მხოლოდ იმ მეთოდებს, რომლებიც აუცილებელია სისტემასთან ურთიერთობისთვის.
+
+
+//Encapsulation: მართავს ავტორის ობიექტების კრებულს და უზრუნველყოფს სხვადასხვა სტატისტიკური ანალიზისა და დახარისხების მეთოდებს.
+//აბსტრაქცია: უზრუნველყოფს ოპერაციების შესრულების მეთოდებს, როგორიცაა დახარისხება, თარიღის დიაპაზონის ძიება და წლიური ანგარიშები მონაცემთა სტრუქტურის გამოვლენის გარეშე.
+
+//პირადი ველები საჯარო მეთოდებით: ავტორის და პროდუქტის კლასი იყენებს კერძო ველებს საჯარო მეთოდებით, რათა გააკონტროლონ წვდომა და უზრუნველყონ მონაცემთა მთლიანობა ვალიდაციის გზით.
+
+//IComparable ინტერფეისი: საშუალებას აძლევს ავტორისა და პროდუქტის ობიექტების დალაგებას CompareTo მეთოდით განსაზღვრული მორგებული ლოგიკის გამოყენებით.
+
+//ინტერფეისები: მიუხედავად იმისა, რომ ტრადიციული მემკვიდრეობა (extens-ის ან მემკვიდრეობის გამოყენებით) ცალსახად არ გამოიყენება, ინტერფეისების დანერგვა (IAuthor და IComparable) იძლევა მემკვიდრეობის ფორმას, სადაც კლასმა უნდა უზრუნველყოს ინტერფეისებში განსაზღვრული მეთოდების დანერგვა.
+
+
+//ავტორისა და პროდუქტის ურთიერთობა: აჩვენებს კომპოზიციურ ურთიერთობას, სადაც ავტორის ობიექტს აქვს პროდუქტის ობიექტების კოლექცია. ეს ნიშნავს, რომ პროდუქტის ობიექტები დამოკიდებულნი არიან ავტორის ობიექტზე და არ შეუძლიათ დამოუკიდებლად არსებობა.
